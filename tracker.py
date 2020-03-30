@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from tools import mask, vid_writer
+from tools import mask, vid_writer, frame_reader
 from itertools import groupby
 from datetime import date 
 from pathlib import Path 
@@ -26,8 +26,8 @@ class Tracker:
         self.vid_save_path = vsp
         self.node_save_path = nsp
         self.node_list = str(nl)
-        self.cap = cv2.VideoCapture(str(vp))
-
+        self.fvs = frame_reader.VidStream(str(vp))
+        
         self.paused = False
         self.frame = None
         self.disp_frame = None
@@ -52,12 +52,10 @@ class Tracker:
     
     def run_vid(self):
         save_flag = 0
-
+        self.fvs.start()
         while True:
             if not self.paused:
-                ret, self.frame = self.cap.read()
-                if not ret:
-                    self.paused = True
+                self.frame = self.fvs.read()
 
             if self.frame is not None:
                 self.disp_frame = self.frame.copy()
@@ -85,7 +83,10 @@ class Tracker:
             elif key == ord('p'):
                 self.paused = not self.paused
 
-        self.cap.release()
+            if self.fvs.Q.empty():
+            	break
+
+        self.fvs.stop()
         cv2.destroyAllWindows()
 
 
@@ -140,6 +141,9 @@ class Tracker:
     def annotate_frame(self, frame):
         nodes_dict = mask.create_node_dict(self.node_list)
         record = self.record_detections and not self.paused
+
+        cv2.putText(frame, 'Q size: {}'.format(self.fvs.Q.qsize()),(60,80), 
+                        fontFace = FONT, fontScale = 0.75, color = (255,255,255), thickness = 1)
 
         if self.pos_centroid is not None:
             for node_name in nodes_dict:
