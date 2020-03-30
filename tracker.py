@@ -21,9 +21,9 @@ def points_dist(p1, p2):
 
 
 class Tracker:
-    def __init__(self, vp, nl, vsp, nsp):
-        self.vid_save_path = vsp
-        self.node_save_path = nsp
+    def __init__(self, vp, nl, vsp, nsp, file_id):
+        self.vid_save_path = vsp + '_' + file_id
+        self.node_save_path = nsp + '_' + file_id
         self.node_list = str(nl)
         self.cap = cv2.VideoCapture(str(vp))
 
@@ -60,7 +60,7 @@ class Tracker:
 
             if self.frame is not None:
                 self.disp_frame = self.frame.copy()
-                self.disp_frame = cv2.resize(self.disp_frame, (588, 356)) 
+                self.disp_frame = cv2.resize(self.disp_frame, (1176, 712)) 
                 self.preprocessing(self.disp_frame)
                 self.annotate_frame(self.disp_frame)
                 cv2.imshow('Tracker', self.disp_frame) 
@@ -131,9 +131,9 @@ class Tracker:
 
     @staticmethod
     def annotate_node(frame, point, node):
-        cv2.circle(frame, point, 2, color = (0, 69, 255), thickness = -1)
+        cv2.circle(frame, point, 20, color = (0, 69, 255), thickness = 1)
         cv2.putText(frame, str(node), (point[0] + 2, point[1] + 2), 
-        			fontScale=0.35, fontFace=FONT, color = (0, 69, 255), thickness=1,
+        			fontScale=0.5, fontFace=FONT, color = (0, 69, 255), thickness=1,
                 	lineType=cv2.LINE_AA)
 
 
@@ -143,7 +143,8 @@ class Tracker:
 
         if self.pos_centroid is not None:
             for node_name in nodes_dict:
-                if points_dist(self.pos_centroid, nodes_dict[node_name]) < 10:
+                if points_dist(self.pos_centroid, nodes_dict[node_name]) < 20:
+                    cv2.circle(frame, self.pos_centroid, 6, (0, 255, 0), -1)
                     if record: 
                         self.saved_nodes.append(node_name) 
                         self.node_pos.append(nodes_dict[node_name])
@@ -154,10 +155,14 @@ class Tracker:
         if record:
             savepath  = self.vid_save_path + '{}'.format('.mp4')
             cv2.putText(frame,'Trial:' + str(self.num), (60,80), 
-                        fontFace = FONT, fontScale = 0.50, color = (255,255,255), thickness = 1)
+                        fontFace = FONT, fontScale = 0.75, color = (255,255,255), thickness = 1)
             self.vid_writer.write(frame = frame, saved_to = savepath)
             cv2.putText(frame,'Currently writing to file: ' + savepath, (60,60), 
-                        fontFace = FONT, fontScale = 0.50, color = (255,255,255), thickness = 1)
+                        fontFace = FONT, fontScale = 0.75, color = (255,255,255), thickness = 1)
+        elif self.paused:
+            cv2.putText(frame,'Trial:' + str(self.num), (60,80), 
+                        fontFace = FONT, fontScale = 0.75, color = (255,255,255), thickness = 1)
+                        
     
     #save_to_file
     def save_to_file(self, fname):
@@ -165,7 +170,7 @@ class Tracker:
         with open(fname, 'a+') as file:
             for k, g in groupby(self.saved_nodes):
                 savelist.append(k)         
-            file.writelines('%s, ' % items for items in savelist)
+            file.writelines('%s,' % items for items in savelist)
             file.write('\n')
 
 
@@ -175,8 +180,11 @@ if __name__ == "__main__":
 
     parser.add_argument('-v', '--video' , type = str, help = 'path to video file')
     parser.add_argument('-n', '--node', type = str , help = 'path to node file')
+    parser.add_argument('-i', '--id',  type = str, help = 'enter unique file id')
     args = parser.parse_args()
-
+    
+    file_id = '' if not args.id else args.id 
+    
     vid_path = Path(args.video).resolve()
     if args.node is not None:
         node_list = Path(args.node).expanduser().resolve()
@@ -188,7 +196,7 @@ if __name__ == "__main__":
     nsp = "C:/Users/students/Desktop/tracker-saved/%s" % (str(today))
     vsp = "C:/Users/students/Desktop/tracker-saved/%s" % (str(today))
 
-    Tracker(vp = vid_path, nl = node_list , vsp = vsp, nsp = nsp)
+    Tracker(vp = vid_path, nl = node_list , vsp = vsp, nsp = nsp, file_id = file_id)
 
     
 

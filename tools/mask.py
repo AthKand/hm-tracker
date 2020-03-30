@@ -8,8 +8,8 @@ def create_node_dict(node_list):
     with open(node_list, 'r') as nl:
         read_nodes = csv.reader(nl)
         for node_list_values in read_nodes:
-            x = int(int(node_list_values[1])/2)
-            y = int(int(node_list_values[2])/2)
+            x = int(node_list_values[1])
+            y = int(node_list_values[2])
             point = (x , y)
         
             nodes_dict.update({node_list_values[0] : point})
@@ -19,7 +19,7 @@ def create_node_dict(node_list):
 #mask for the hex maze(vid size - [1176, 712])
 def create_mask(node_list):
     
-    black_im =  np.zeros(shape=[356 , 588, 3], dtype = np.uint8)
+    black_im =  np.zeros(shape=[712 , 1176, 3], dtype = np.uint8)
     
     #mask initialisations
     flower_graph = {1: [2, 7],
