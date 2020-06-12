@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ignore all log files
 *.log
 
@@ -7,3 +8,6 @@
 
 #ignore csv files
 *.csv
+=======
+.pyc 
+>>>>>>> 71a7cc464614cd427324bc46b3fc1a899a8f844b
