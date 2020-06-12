@@ -7,9 +7,13 @@ from tracker import Tracker
 
 def fopen(message, ftype):
 	if ftype == 'node':
-		root.filename = filedialog.askopenfilename(title = message, filetypes = [("CSV Files", "*.csv"), ("All Files", "*.*")])
+		root.filename = filedialog.askopenfilename(title = message, 
+			filetypes = [("CSV Files", "*.csv"), ("All Files", "*.*")])
 	elif ftype == 'video':
-		root.filename = filedialog.askopenfilename(title = message, filetypes = [("Video Files", [".mp4", ".avi", ".mkv"]), ("All Files", "*.*")])
+		root.filename = filedialog.askopenfilename(title = message, 
+			filetypes = [("Video Files", [".mp4", ".avi", ".mkv"]), ("All Files", "*.*")])
+	elif ftype == 'dir':
+		root.filename = filedialog.askdirectory(title = message, initialdir = '/Destktop')
 
 	return root.filename
 
@@ -22,14 +26,13 @@ else:
 	#root.title('TrackerGUI')
 	
 	vfile = fopen('Select Video File', ftype = 'video')
-	tvpath = Path(vfile).resolve()
+	vpath = Path(vfile).resolve()
 
-	print('vid file imported...')
+	print('video file imported...')
 
-	print('selecting node file...')
+	savedir = fopen('Select Save Directory', ftype = 'dir')
+	save_path = Path(savedir).resolve()
 
-	nfile = fopen('Select Node List', ftype = 'node')
-	tnpath = Path(nfile).resolve()
 
 	#root.mainloop()
 
