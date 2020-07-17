@@ -11,8 +11,10 @@ Organistaion: Genzel Lab, Donders Institute
 
 Author(s): Atharva Kand
 
-Version: v1.01
-Last Updated: 10th June, 2020
+Version: v1.02
+Last Updated: 17th July, 2020
+
+Last change: Added nearest node to X,Y position to logger
 
 '''
 
@@ -106,8 +108,11 @@ class Tracker:
             
             if self.record_detections:
                 logtime += rfps
-                if int(logtime) >= 10:
-                    logger.info('The rat position is: {}'.format(self.pos_centroid))
+                if logtime >= 1:
+                    if self.pos_centroid is not None:
+                        logger.info('The rat position is: {} @ {}'. format(self.pos_centroid, self.saved_nodes[-1]))
+                    else:
+                        logger.info('The rat position is: {}'.format(self.pos_centroid))
                     logtime = 0
 
             key = cv2.waitKey(1) & 0xFF
@@ -213,6 +218,13 @@ class Tracker:
         #annotate all nodes the rat has traversed
         for i in range(0, len(self.saved_nodes)):
             self.annotate_node(frame, point = self.node_pos[i], node = self.saved_nodes[i])
+
+        # for node in nodes_dict:
+        #     cv2.circle(frame, nodes_dict[node], 20, color = (0,255,255), thickness = 2)
+        #     cv2.putText(frame, str(node), (nodes_dict[node][0] + 2, nodes_dict[node][1] + 2), 
+        #             fontScale=0.5, fontFace=FONT, color = (0, 0, 255), thickness=1,
+        #             lineType=cv2.LINE_AA)
+
 
         #frame annotations during recording
         if record:
