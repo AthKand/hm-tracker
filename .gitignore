@@ -1,1 +1,10 @@
-.pyc 
+#ignore all log files
+*.log
+
+#ignore pycache
+/pycache
+*.pyc
+
+#ignore csv files
+*.csv
+
