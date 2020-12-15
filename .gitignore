@@ -1,0 +1,13 @@
+#ignore all log files
+*.log
+
+#ignore pycache
+/pycache
+*.pyc
+
+#ignore csv files
+*.csv
+
+#ignore executables and linkers
+*.exe
+*.lnk
