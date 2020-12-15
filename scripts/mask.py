@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 import cv2
 import csv
 
@@ -15,6 +16,7 @@ def create_node_dict(node_list):
             nodes_dict.update({node_list_values[0] : point})
 
     return nodes_dict
+
 
 #mask for the hex maze(vid size - [1176, 712])
 def create_mask(node_list):
@@ -90,5 +92,12 @@ def create_mask(node_list):
     gray = cv2.cvtColor(black_im, cv2.COLOR_BGR2GRAY)
     arr = np.array(gray)
     mask = arr > 200
+
+    np.save('hex_mask', mask)
     
     return mask
+
+if __name__ == '__main__':
+    
+    node_list = Path('C:/Users/Mahe/Desktop/projects/genzel_lab/hm_tracker/tracker/tracker/resources/node_list_new.csv').resolve()
+    create_mask(node_list)

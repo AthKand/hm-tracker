@@ -2,8 +2,7 @@ from pathlib import Path
 from tkinter import *
 from tkinter import ttk, filedialog
 
-from tracker import Tracker
-
+from track import Tracker
 
 def fopen(message, ftype):
 	if ftype == 'node':
