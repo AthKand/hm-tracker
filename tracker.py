@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 '''
 Title: Tracker
 
@@ -19,6 +20,7 @@ Last change: Added nearest node to X,Y position to logger
 '''
 
 from tools import mask, vid_writer, kalman_filter
+
 from itertools import groupby
 from datetime import date 
 from pathlib import Path 
@@ -52,8 +54,8 @@ class Tracker:
         nsp = str(date.today()) + '_' + file_id
         self.save = os.path.join(gui.save_path, nsp)
         self.node_list = str(nl)
-        self.cap = cv2.VideoCapture(str(vp))
-
+        self.fvs = frame_reader.VidStream(str(vp))
+        
         self.paused = False
         self.frame = None
         self.frame_rate = 0
@@ -80,15 +82,15 @@ class Tracker:
     def run_vid(self):
         '''Frame by Frame looping of video'''
         save_flag = 0
+
         logtime = 0
         print('loading tracker...\n')
         time.sleep(2.0)
-
+        self.fvs.start()
+        
         while True:
             if not self.paused:
-                ret, self.frame = self.cap.read()
-                if not ret:
-                    self.paused = True
+                self.frame = self.fvs.read()
 
             start = time.time()
             
@@ -138,7 +140,10 @@ class Tracker:
             elif key == ord(' '):
                 self.paused = not self.paused
 
-        self.cap.release()
+            if self.fvs.Q.empty():
+            	break
+
+        self.fvs.stop()
         cv2.destroyAllWindows()
 
     #pre-process frame - apply mask, bg subtractor and morphology operations
@@ -207,6 +212,9 @@ class Tracker:
     def annotate_frame(self, frame):
         nodes_dict = mask.create_node_dict(self.node_list)				#dictionary of node names and corresponding coordinates
         record = self.record_detections and not self.paused
+
+        cv2.putText(frame, 'Q size: {}'.format(self.fvs.Q.qsize()),(60,80), 
+                        fontFace = FONT, fontScale = 0.75, color = (255,255,255), thickness = 1)
 
         if self.pos_centroid is not None:
             for node_name in nodes_dict:
